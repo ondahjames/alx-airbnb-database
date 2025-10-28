@@ -1,31 +1,32 @@
-# Airbnb Database Schema
+# Airbnb Database Schema (PostgreSQL)
 
-## Overview
+## 🏠 Overview
 
-This project defines the **PostgreSQL schema** for an Airbnb-like application, modeling the relationships between users, properties, bookings, payments, reviews, amenities, and images.
-The goal is to provide a normalized, scalable, and query-efficient design.
-
----
-
-## Files
-
-* **schema.sql** – SQL script that creates all database tables, relationships, constraints, and indexes.
-* **seed.sql** *(optional)* – Script for populating the database with sample data.
+This project defines the **PostgreSQL database schema** for an Airbnb-like application.
+It models real-world entities such as users, properties, bookings, payments, reviews, amenities, and property images.
+The schema is designed for **scalability**, **data consistency**, and **query efficiency**.
 
 ---
 
-## Database Entities
+## 📁 Files
+
+* `schema.sql` – Contains all table definitions, constraints, and indexes.
+* *(Optional)* `seed.sql` – Can be used to populate the database with sample data.
+
+---
+
+## 🧩 Entities Overview
 
 ### 1. Users
 
-Stores user information (guests, hosts, admins).
+Stores all registered users (guests, hosts, and admins).
 
-**Key attributes:**
+**Columns:**
 
-* `user_id` (UUID, Primary Key)
+* `user_id` – UUID Primary Key (auto-generated)
 * `first_name`, `last_name`, `email`, `phone`
-* `user_type` – defines role: *guest*, *host*, or *admin*
-* `created_at`
+* `user_type` – Role (guest, host, admin)
+* `created_at` – Timestamp for record creation
 
 ---
 
@@ -33,112 +34,148 @@ Stores user information (guests, hosts, admins).
 
 Represents listings hosted by users.
 
-**Key attributes:**
+**Columns:**
 
-* `property_id` (UUID, Primary Key)
-* `host_id` → references `users(user_id)`
+* `property_id` – UUID Primary Key
+* `host_id` – References `users(user_id)`
 * `title`, `description`, `location`, `price_per_night`
-* `created_at`
+* `created_at` – Timestamp for record creation
+
+**Indexes:**
+
+* `idx_properties_location`
+* `idx_properties_price`
 
 ---
 
 ### 3. Bookings
 
-Links guests to reserved properties.
+Tracks reservations made by guests.
 
-**Key attributes:**
+**Columns:**
 
-* `booking_id` (UUID, Primary Key)
-* `property_id` → references `properties(property_id)`
-* `guest_id` → references `users(user_id)`
-* `check_in_date`, `check_out_date`, `total_amount`
-* `booking_status`: *confirmed*, *pending*, *canceled*
+* `booking_id` – UUID Primary Key
+* `property_id` – References `properties(property_id)`
+* `guest_id` – References `users(user_id)`
+* `check_in_date`, `check_out_date`, `total_amount`, `booking_status`
+* `created_at`
+
+**Constraints:**
+
+* `chk_dates` ensures checkout date > check-in date.
 
 ---
 
 ### 4. Payments
 
-Tracks payments associated with bookings.
+Logs payment details for each booking.
 
-**Key attributes:**
+**Columns:**
 
-* `payment_id` (UUID, Primary Key)
-* `booking_id` → references `bookings(booking_id)`
+* `payment_id` – UUID Primary Key
+* `booking_id` – References `bookings(booking_id)`
 * `amount`, `payment_method`, `status`
 * `payment_date`
+
+**Indexes:**
+
+* `idx_payments_booking`
 
 ---
 
 ### 5. Reviews
 
-Captures guest feedback.
+Captures feedback for completed stays.
 
-**Key attributes:**
+**Columns:**
 
-* `review_id` (UUID, Primary Key)
-* `booking_id` → references `bookings(booking_id)`
-* `rating` (1–5), `comment`
+* `review_id` – UUID Primary Key
+* `booking_id` – References `bookings(booking_id)`
+* `rating` (1–5)
+* `comment`
+* `created_at`
 
 ---
 
 ### 6. Amenities
 
-Defines property features (e.g., Wi-Fi, parking).
+Defines available property features.
 
-**Key attributes:**
+**Columns:**
 
-* `amenity_id` (UUID, Primary Key)
-* `name` (Unique)
+* `amenity_id` – UUID Primary Key
+* `name` – Unique name of the amenity (e.g., Wi-Fi, Parking)
 
 ---
 
 ### 7. Property_Amenities
 
-Join table for many-to-many relationship between Properties and Amenities.
+A join table linking properties and amenities (many-to-many relationship).
+
+**Primary Key:**
+
+* (`property_id`, `amenity_id`)
 
 ---
 
 ### 8. Property_Images
 
-Stores image URLs associated with properties.
+Stores property image URLs.
+
+**Columns:**
+
+* `image_id` – UUID Primary Key
+* `property_id` – References `properties(property_id)`
+* `image_url`, `uploaded_at`
 
 ---
 
-## Relationships Summary
+## 🔗 Relationships
 
-* **Users → Properties:** One host can own many properties.
-* **Users → Bookings:** A guest can make many bookings.
-* **Properties → Bookings:** One property can have many bookings.
-* **Bookings → Payments:** One-to-one.
-* **Bookings → Reviews:** One-to-one.
-* **Properties ↔ Amenities:** Many-to-many via `property_amenities`.
+| Relationship           | Type         | Description                             |
+| ---------------------- | ------------ | --------------------------------------- |
+| Users → Properties     | 1-to-Many    | Each host can list multiple properties. |
+| Users → Bookings       | 1-to-Many    | Each guest can make multiple bookings.  |
+| Properties → Bookings  | 1-to-Many    | One property can have many bookings.    |
+| Bookings → Payments    | 1-to-1       | Each booking has one payment.           |
+| Bookings → Reviews     | 1-to-1       | Each booking has one review.            |
+| Properties ↔ Amenities | Many-to-Many | Through `property_amenities`.           |
 
 ---
 
-## How to Use
+## ⚙️ How to Use
 
-### 1. Run the Schema
+### 1. Create the Database
 
 ```bash
-psql -U your_username -d your_database -f schema.sql
+psql -U postgres -d airbnb_db -f schema.sql
 ```
 
-### 2. (Optional) Seed Sample Data
+### 2. Verify Tables
+
+```sql
+\dt
+```
+
+### 3. (Optional) Add Sample Data
 
 ```bash
-psql -U your_username -d your_database -f seed.sql
+psql -U postgres -d airbnb_db -f seed.sql
 ```
 
 ---
 
-## Notes
+## 🧠 Notes
 
-* All primary keys use `UUID` for global uniqueness.
-* Indexes are defined on foreign keys and searchable attributes (e.g., `location`, `price_per_night`).
-* Constraints ensure referential integrity and valid data (e.g., date validation, positive price).
+* Uses **UUIDs** for all primary keys.
+* Includes **indexes** on searchable columns for faster lookups.
+* Ensures **referential integrity** with `ON DELETE CASCADE`.
+* Future optimizations may include **materialized views** or **advanced indexing** for analytics.
 
 ---
 
-## Author
+## 👨‍💻 Author
 
-**ALX Airbnb Database Project** – *Database Design & Implementation (database-script-0x02)*
+**Ondah James**
+Project: *ALX Airbnb Database Module*
+Directory: `database-script-0x02`
