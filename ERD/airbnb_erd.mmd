@@ -1,0 +1,55 @@
+erDiagram
+    USERS ||--o{ BOOKINGS : makes
+    USERS ||--o{ REVIEWS : writes
+    USERS ||--o{ PAYMENTS : owns
+    PROPERTIES ||--o{ BOOKINGS : has
+    PROPERTIES ||--o{ REVIEWS : receives
+    BOOKINGS ||--|{ PAYMENTS : generates
+
+    USERS {
+        int user_id PK
+        string first_name
+        string last_name
+        string email UNIQUE
+        string phone
+        datetime created_at
+    }
+
+    PROPERTIES {
+        int property_id PK
+        int host_id FK
+        string title
+        string description
+        string location
+        decimal price_per_night
+        datetime created_at
+    }
+
+    BOOKINGS {
+        int booking_id PK
+        int user_id FK
+        int property_id FK
+        date start_date
+        date end_date
+        string status
+        decimal total_price
+        datetime created_at
+    }
+
+    PAYMENTS {
+        int payment_id PK
+        int booking_id FK
+        decimal amount
+        string method
+        string status
+        datetime payment_date
+    }
+
+    REVIEWS {
+        int review_id PK
+        int user_id FK
+        int property_id FK
+        int rating
+        string comment
+        datetime created_at
+    }
