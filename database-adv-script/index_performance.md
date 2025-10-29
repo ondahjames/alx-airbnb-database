@@ -11,3 +11,13 @@ CREATE INDEX idx_booking_date ON Booking(booking_date);
 CREATE INDEX idx_property_city ON Property(city);
 CREATE INDEX idx_property_price ON Property(price);
 CREATE INDEX idx_property_owner_id ON Property(owner_id);
+
+EXPLAIN ANALYZE
+SELECT * FROM Booking
+WHERE user_id = 123
+ORDER BY booking_date DESC;
+
+EXPLAIN ANALYZE
+SELECT * FROM Booking
+WHERE user_id = 123
+ORDER BY booking_date DESC;
