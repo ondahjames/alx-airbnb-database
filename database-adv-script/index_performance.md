@@ -18,3 +18,18 @@ CREATE INDEX idx_bookings_start_date ON bookings(start_date);
 
 -- Optional composite index for performance boost in date-based property lookups
 CREATE INDEX idx_bookings_property_date ON bookings(property_id, check_in_date);
+
+-- Measure query before indexing
+EXPLAIN ANALYZE
+SELECT 
+    b.booking_id,
+    u.first_name,
+    p.title,
+    b.check_in_date,
+    b.check_out_date
+FROM bookings b
+JOIN users u ON b.guest_id = u.user_id
+JOIN properties p ON b.property_id = p.property_id
+WHERE p.location = 'Lagos'
+  AND b.check_in_date BETWEEN '2025-01-01' AND '2025-12-31';
+
