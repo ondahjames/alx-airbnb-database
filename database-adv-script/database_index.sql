@@ -35,3 +35,15 @@ CREATE INDEX idx_property_price ON Property(price);
 
 -- Index to optimize queries joining with User table (owner)
 CREATE INDEX idx_property_owner_id ON Property(owner_id);
+
+-- Using EXPLAIN
+EXPLAIN
+SELECT * FROM Booking WHERE user_id = 123;
+
+-- Using EXPLAIN ANALYZE (executes the query and shows actual timing)
+EXPLAIN ANALYZE
+SELECT * FROM Booking WHERE user_id = 123;
+
+EXPLAIN ANALYZE
+SELECT * FROM Booking WHERE user_id = 123;
+
